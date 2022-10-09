@@ -1,4 +1,3 @@
-
 import aiohttp
 import asyncio
 
@@ -11,7 +10,10 @@ async def request(session, sleep=None):
     if sleep:
         asyncio.sleep(sleep)
     async with session.get(URL) as response:
-        return await response.json()
+        if response.status == 200:
+            return await response.json()
+        else:
+            raise ValueError("Expected 200 in status code")
 
 
 async def task():
