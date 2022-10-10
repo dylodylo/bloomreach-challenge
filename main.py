@@ -1,7 +1,6 @@
 import asyncio
 
 import aiohttp
-import logging
 from fastapi import FastAPI, HTTPException
 
 app = FastAPI()
@@ -25,13 +24,26 @@ async def close_pending(pending):
 
 async def exponea_session():
     async with aiohttp.ClientSession() as session:
-        tasks = [asyncio.create_task(request(session, sleep=0.3)) for i in range(2)]
+        tasks = [asyncio.create_task(request(session, sleep=0.3)) for _ in range(2)]
         tasks.insert(0, asyncio.create_task(request(session)))
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
-        # TODO: handle with error in request (run again wait with pending)
+        while done:
+            task = done.pop()
+            try:
+                result = task.result()
+                break
+            except AttributeError:
+                pass
+            except ValueError:
+                if not pending:
+                    result = HTTPException(status_code=503)
+                    break
+            if pending:
+                done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
+
         await close_pending(pending)
         await session.close()
-        return done.pop().result()
+        return result
 
 
 @app.get('/api/smart')

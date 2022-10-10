@@ -11,7 +11,7 @@ pytest_plugins = ('pytest_asyncio',)
 
 
 @pytest.mark.asyncio
-@patch("main.request", return_value=ValueError())
+@patch('main.request', return_value=ValueError())
 async def test_failed_requests(_):
     result = await exponea_session()
     assert isinstance(result, ValueError)
