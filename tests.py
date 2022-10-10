@@ -4,7 +4,7 @@ import aiohttp
 import pytest
 from fastapi.testclient import TestClient
 
-from main import task, app
+from main import exponea_session, app
 
 client = TestClient(app)
 pytest_plugins = ('pytest_asyncio',)
@@ -13,7 +13,7 @@ pytest_plugins = ('pytest_asyncio',)
 @pytest.mark.asyncio
 @patch("main.request", return_value=ValueError())
 async def test_failed_requests(_):
-    result = await task()
+    result = await exponea_session()
     assert isinstance(result, ValueError)
 
 
