@@ -53,4 +53,4 @@ async def api_smart(timeout: int):
         result = await asyncio.wait_for(exponea_session(), timeout=timeout_in_milliseconds)
         return result
     except asyncio.TimeoutError:
-        raise HTTPException(status_code=408, detail='Timeout error')
+        return HTTPException(status_code=408, detail='Timeout error')
